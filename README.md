@@ -24,17 +24,14 @@ A clone of TranslateGPT built with **ASP.NET Core (C#)** that leverages AI trans
 
 ## 📂 Project Structure
 
-TranslateGPT/
-├── Controllers/
-│ └── HomeController.cs
-├── Models/
-│ └── TranslationRequest.cs
-├── Views/
-│ └── Home/
-│ └── Index.cshtml
-├── wwwroot/
-│ └── css/ js/ assets/
-├── appsettings.json
-├── Program.cs
-├── Startup.cs
-└── TranslateGPT.csproj
+- To be uplaoded
+
+---
+
+## 💡 What's next?
+
+- 🏗️ Add language detection
+- 🏗️ Add translation history per session
+- 🏗️ Add speech synthesis (text-to-speech)
+- 🏗️ Add user authentication (optional)
+
