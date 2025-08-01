@@ -56,47 +56,48 @@ namespace TranslateGPT.Controllers
             var openAPIKey = _configuration["OpenAI:ApiKey"];
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {openAPIKey}");
 
-            //Define the request payload
             var payload = new
             {
                 model = "gpt-4o",
                 messages = new object[]
                 {
-                    new { role = "system", content = $"Translate to {selectedLanguage}"},
-                    new {role = "user", content = query}
+            new { role = "system", content = $"Translate to {selectedLanguage}" },
+            new { role = "user", content = query }
                 },
                 temperature = 0,
                 max_tokens = 256
             };
+
             string jsonPayload = JsonConvert.SerializeObject(payload);
             HttpContent httpContent = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
-            //Send the request
             var responseMessage = await _httpClient.PostAsync("https://api.openai.com/v1/chat/completions", httpContent);
             var responseMessageJson = await responseMessage.Content.ReadAsStringAsync();
 
-            //Return a response
+            // Log the raw response for debugging
+            _logger.LogInformation($"OpenAI API Response: {responseMessageJson}");
+            _logger.LogInformation($"Status Code: {responseMessage.StatusCode}");
+
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                ViewBag.Result = $"API Error: {responseMessage.StatusCode} - {responseMessageJson}";
+                ViewBag.Languages = new SelectList(mostUsedLanguages);
+                return View("Index");
+            }
+
             var response = JsonConvert.DeserializeObject<OpenAIResponse>(responseMessageJson);
 
-
-            if (response.Choices != null && response.Choices.Count > 0 && response.Choices[0].Message != null)
+            if (response?.Choices?.Count > 0 && response.Choices[0].Message != null)
             {
                 ViewBag.Result = response.Choices[0].Message.Content;
             }
             else
             {
-                ViewBag.Result = "No response from OpenAI.";
+                ViewBag.Result = "No response from OpenAI. Raw API response: " + responseMessageJson;
             }
 
             ViewBag.Languages = new SelectList(mostUsedLanguages);
-
             return View("Index");
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }
